@@ -1,0 +1,5 @@
+backend/node_modules/
+backend/dist/
+
+DerivedData/
+.DS_Store

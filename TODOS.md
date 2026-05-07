@@ -1,0 +1,9 @@
+- [ ] [BLOCKING-PHASE-2] Validate App Store policy: submit minimal test app with background audio session + installTap. Confirm Apple approves before writing Phase 2 tracking code.
+- [ ] [WEEK-1] Benchmark ElevenLabs p50/p95/p99 streaming latency from deployed Render server. Target: <500ms to first audio chunk. Block full streaming pipeline build until measured.
+- [ ] [BEFORE-PRICING] Validate ElevenLabs volume pricing. Retail: ~$35/user/month TTS cost. Must find break-even before setting subscription price.
+- [ ] [PHASE-1-QUICK-WIN] Pre-generate greeting + sign-off audio: 5-7 greeting variations + sign-off phrase. Bundle as .m4a in app bundle. Eliminates ElevenLabs API call for the two most important product moments.
+- [ ] [PHASE-2-GATE] Define sleep classifier calibration plan before enabling smart alarm. Minimum: 2-week self-report study with 5 Phase 1 beta users to validate accel variance threshold.
+- [ ] [PHASE-2-SPEC] CMMotionManager: use 5-10Hz sample rate (not 50Hz). Sufficient for variance-based phase detection. Battery impact: ~2-3%/hr vs ~15-20%/hr at 50Hz.
+- [ ] [FUTURE] Document Apple Sign-In relay email limitation in AuthService.swift. If Sabat ships web/Android, email fallback auth needed.
+- [ ] [RAG-PRIVACY] Add explicit memory consent, memory review/delete UI, retention policy, and encrypted-at-rest production storage before beta. Voice memories may include fears, pains, habits, and other sensitive disclosures.
+- [ ] [RAG-PROD] Migrate UserMemory.embedding from Prisma Json cosine scan to pgvector/HNSW once memory volume exceeds beta scale.

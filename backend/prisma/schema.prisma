@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String              @id @default(cuid())
+  appleSubject   String              @unique
+  email          String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  profile        UserProfile?
+  sessions       SleepSession[]
+  conversations  VoiceConversation[]
+  memories       UserMemory[]
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String
+  voiceId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SleepSession {
+  id        String    @id @default(cuid())
+  userId    String
+  startedAt DateTime
+  endedAt   DateTime?
+  restScore Int?
+  phases    Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VoiceConversation {
+  id              String   @id @default(cuid())
+  userId          String
+  messages        Json
+  sessionComplete Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserMemory {
+  id         String     @id @default(cuid())
+  userId     String
+  kind       MemoryKind
+  content    String
+  source     String
+  metadata   Json?
+  embedding  Json
+  salience   Float      @default(0.5)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+  @@index([userId, createdAt])
+}
+
+enum MemoryKind {
+  voice_disclosure
+  sleep_summary
+  habit
+  preference
+  concern
+  system_summary
+}
