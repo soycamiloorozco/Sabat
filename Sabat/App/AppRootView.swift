@@ -50,6 +50,7 @@ struct AppRootView: View {
         }
         .sheet(isPresented: $tabController.showSmartAlarm) {
             SmartAlarmView()
+                .environmentObject(tabController)
         }
         .fullScreenCover(isPresented: $tabController.showWakeUp) {
             WakeUpView()

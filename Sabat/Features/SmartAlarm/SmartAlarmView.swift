@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SmartAlarmView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var tabController: AppTabController
     @StateObject private var viewModel = SmartAlarmViewModel()
 
     var body: some View {
@@ -201,11 +202,33 @@ struct SmartAlarmView: View {
 
     private var actionButtonsSection: some View {
         VStack(spacing: SabatSpacing.md) {
-            GoldButton(title: viewModel.isAlarmActive ? "Update alarm" : "Set alarm", systemImage: "alarm.fill") {
+            // Primary: Go to Sleep (saves alarm + opens lock screen)
+            GoldButton(title: "Go to sleep", systemImage: "moon.zzz.fill") {
                 HapticEngine.success()
                 viewModel.saveAlarm()
                 dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    tabController.showTracking = true
+                }
             }
+
+            // Secondary: Just save alarm
+            Button {
+                HapticEngine.softTap()
+                viewModel.saveAlarm()
+                dismiss()
+            } label: {
+                Text(viewModel.isAlarmActive ? "Update alarm only" : "Set alarm only")
+                    .font(.sabatSans(15, weight: .medium))
+                    .foregroundStyle(Color.sabatDawn)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .overlay {
+                        Capsule()
+                            .stroke(Color.sabatDawn.opacity(0.4), lineWidth: 1)
+                    }
+            }
+            .buttonStyle(PillSecondaryButtonStyle())
 
             if viewModel.isAlarmActive {
                 Button {
@@ -214,13 +237,9 @@ struct SmartAlarmView: View {
                 } label: {
                     Text("Cancel alarm")
                         .font(.sabatSans(15, weight: .medium))
-                        .foregroundStyle(Color.sabatDawn)
+                        .foregroundStyle(Color.sabatMuted)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)
-                        .overlay {
-                            Capsule()
-                                .stroke(Color.sabatDawn.opacity(0.4), lineWidth: 1)
-                        }
                 }
                 .buttonStyle(PillSecondaryButtonStyle())
             }
