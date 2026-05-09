@@ -17,27 +17,26 @@ struct AppRootView: View {
         .environmentObject(tabController)
     }
 
-    // MARK: - Main App (Tab-based with horizontal swipe)
+    // MARK: - Main App (Native Liquid Glass Tab Bar)
 
     private var mainApp: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $tabController.selectedTab) {
+        TabView(selection: $tabController.selectedTab) {
+            Tab("Rest", systemImage: "moon.fill", value: AppTab.rest) {
                 RestTabView()
-                    .tag(AppTab.rest)
+            }
 
+            Tab("Analytics", systemImage: "chart.bar.fill", value: AppTab.analytics) {
                 AnalyticsTabView()
-                    .tag(AppTab.analytics)
+            }
 
+            Tab("Settings", systemImage: "gearshape.fill", value: AppTab.settings) {
                 SettingsTabView()
-                    .tag(AppTab.settings)
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.spring(response: 0.38, dampingFraction: 0.88), value: tabController.selectedTab)
-            .onChange(of: tabController.selectedTab) { _, _ in
-                HapticEngine.tabTick()
-            }
-
-            AppTabBar(selectedTab: $tabController.selectedTab)
+        }
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .tint(Color.sabatDawn)
+        .onChange(of: tabController.selectedTab) { _, _ in
+            HapticEngine.tabTick()
         }
         .ignoresSafeArea(.keyboard)
         // Modal flows triggered from tabs

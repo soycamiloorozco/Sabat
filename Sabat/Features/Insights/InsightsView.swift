@@ -10,18 +10,17 @@ struct InsightsView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: SabatSpacing.xl) {
-                    header
+                    aiSummaryHeader
 
-                    if viewModel.sessions.isEmpty {
-                        emptyStateSection
-                    } else {
-                        insightsSection
+                    highlightsGrid
+
+                    AnalyticsSection(title: "Sleep Regularity", subtitle: "Overall Consistency") {
                         scoreSection
-                        weekSection
-                        phaseSection
-                        rhythmSection
-                        nightsSection
                     }
+
+                    weekSection
+                    phaseSection
+                    nightsSection
                 }
                 .padding(.horizontal, SabatSpacing.lg)
                 .padding(.top, SabatSpacing.xl)
@@ -37,48 +36,133 @@ struct InsightsView: View {
         }
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: SabatSpacing.sm) {
-            Text(L10n.analytics)
-                .font(.sabatSans(15, weight: .medium))
-                .foregroundStyle(Color.sabatMuted)
-
-            Text(L10n.yourWeekDecoded)
-                .font(.sabatDisplay(32))
+    private var aiSummaryHeader: some View {
+        HStack(alignment: .top, spacing: SabatSpacing.md) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.sabatGold2)
-                .fixedSize(horizontal: false, vertical: true)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Great news! Your data looks really strong and you're making clear progress lately. Keep going like this!")
+                    .font(.sabatSerif(16))
+                    .foregroundStyle(Color.sabatMist)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private var highlightsGrid: some View {
+        VStack(alignment: .leading, spacing: SabatSpacing.md) {
+            Text("Highlights")
+                .font(.sabatDisplay(24))
+                .foregroundStyle(Color.white)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: SabatSpacing.md) {
+                HighlightCard(title: "Bedtime", icon: "bed.double.fill", iconColor: .purple) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("12:10 AM")
+                            .font(.sabatMono(22, weight: .bold))
+                            .foregroundStyle(Color.white)
+                        
+                        // Range bar
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.sabatPaper.opacity(0.1))
+                            Capsule().fill(Color.purple.opacity(0.4)).frame(width: 40).offset(x: 30)
+                            Circle().fill(Color.white).frame(width: 8, height: 8).offset(x: 45)
+                        }
+                        .frame(height: 6)
+                    }
+                }
+
+                HighlightCard(title: "Waketime", icon: "sun.max.fill", iconColor: .orange) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("8:50 AM")
+                            .font(.sabatMono(22, weight: .bold))
+                            .foregroundStyle(Color.white)
+                        
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.sabatPaper.opacity(0.1))
+                            Capsule().fill(Color.orange.opacity(0.4)).frame(width: 40).offset(x: 50)
+                            Circle().fill(Color.white).frame(width: 8, height: 8).offset(x: 65)
+                        }
+                        .frame(height: 6)
+                    }
+                }
+
+                HighlightCard(title: "Consistency Streak", icon: "flame.fill", iconColor: .orange) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("3")
+                                .font(.sabatDisplay(32))
+                                .foregroundStyle(Color.white)
+                            Text("nights")
+                                .font(.sabatSans(14))
+                                .foregroundStyle(Color.sabatMuted)
+                        }
+                        
+                        HStack(spacing: 4) {
+                            ForEach(0..<5) { _ in
+                                Circle().fill(Color.orange.opacity(0.6)).frame(width: 14, height: 14)
+                            }
+                            Circle().stroke(Color.sabatMuted, lineWidth: 1).frame(width: 14, height: 14)
+                        }
+                    }
+                }
+
+                HighlightCard(title: "Sleep Protocol", icon: "checklist", iconColor: .blue) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("4")
+                                .font(.sabatDisplay(32))
+                                .foregroundStyle(Color.white)
+                            Text("/12")
+                                .font(.sabatSans(14))
+                                .foregroundStyle(Color.sabatMuted)
+                        }
+                        
+                        HStack(spacing: 3) {
+                            ForEach(0..<4) { _ in
+                                Capsule().fill(Color.blue.opacity(0.8)).frame(width: 10, height: 16)
+                            }
+                            ForEach(0..<4) { _ in
+                                Capsule().fill(Color.sabatPaper.opacity(0.15)).frame(width: 10, height: 16)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    private var insightsSection: some View {
-        VStack(spacing: SabatSpacing.md) {
-            HStack {
-                Text(L10n.personalizedInsight)
-                    .font(.sabatMono(12, weight: .semibold))
-                    .textCase(.uppercase)
-                    .foregroundStyle(Color.sabatMuted)
-                    .tracking(1.4)
-
-                Spacer()
-
-                if viewModel.isLoadingInsights {
-                    ProgressView()
-                        .tint(Color.sabatMuted)
-                        .scaleEffect(0.7)
+    private struct HighlightCard<Content: View>: View {
+        let title: String
+        let icon: String
+        let iconColor: Color
+        let content: () -> Content
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: SabatSpacing.md) {
+                HStack {
+                    Text(title)
+                        .font(.sabatSans(13, weight: .semibold))
+                        .foregroundStyle(Color.sabatMuted)
+                    Spacer()
+                    Image(systemName: icon)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(iconColor)
                 }
+                
+                content()
             }
-
-            ForEach(viewModel.insights) { insight in
-                InsightCard(insight: insight)
-            }
-
-            if viewModel.insights.isEmpty && !viewModel.isLoadingInsights {
-                Text(L10n.noInsightYet)
-                    .font(.sabatSerif(16))
-                    .foregroundStyle(Color.sabatMuted)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, SabatSpacing.md)
+            .padding(SabatSpacing.md)
+            .frame(maxWidth: .infinity, minHeight: 120)
+            .background(Color.sabatPaper.opacity(0.04))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Color.sabatLine.opacity(0.3), lineWidth: 0.5)
             }
         }
     }

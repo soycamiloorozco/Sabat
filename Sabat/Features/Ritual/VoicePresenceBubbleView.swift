@@ -44,41 +44,68 @@ struct VoicePresenceBubbleView: View {
             let size = min(available * 0.72, baseSize + CGFloat(energy * 86))
 
             ZStack {
+                // Background Atmosphere Glow
                 Circle()
-                    .fill(Color.white.opacity(0.06 + energy * 0.08))
-                    .frame(width: size * 1.5, height: size * 1.5)
-                    .blur(radius: 36)
-                    .scaleEffect(breath ? 1.08 : 0.94)
+                    .fill(Color(red: 0.1, green: 0.3, blue: 0.8).opacity(0.12 + energy * 0.12))
+                    .frame(width: size * 1.8, height: size * 1.8)
+                    .blur(radius: 60)
+                    .scaleEffect(breath ? 1.15 : 0.85)
 
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                Color.white.opacity(0.98),
-                                Color.sabatPaper.opacity(toneOpacity),
-                                Color.sabatSmoke.opacity(0.28 + energy * 0.16)
-                            ],
-                            center: UnitPoint(x: 0.46, y: 0.38),
-                            startRadius: 8,
-                            endRadius: size * 0.58
+                // The Core Living Fluid
+                ZStack {
+                    // Deep base
+                    Circle()
+                        .fill(Color(red: 0.05, green: 0.1, blue: 0.3))
+                        .frame(width: size, height: size)
+                    
+                    // Cyan Flow
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    Color(red: 0.2, green: 0.7, blue: 1.0).opacity(0.9),
+                                    Color(red: 0.1, green: 0.4, blue: 0.9).opacity(0.4),
+                                    .clear
+                                ],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: size * 0.5
+                            )
                         )
-                    )
-                    .frame(width: size, height: size)
-                    .overlay {
-                        particleTexture(size: size)
-                            .clipShape(Circle())
-                    }
-                    .overlay(alignment: .topLeading) {
-                        Circle()
-                            .fill(Color.white.opacity(0.46))
-                            .frame(width: size * 0.28, height: size * 0.18)
-                            .blur(radius: 18)
-                            .offset(x: size * 0.18, y: size * 0.18)
-                    }
-                    .scaleEffect(0.96 + energy * 0.12)
-                    .offset(y: drift ? -8 : 8)
-                    .shadow(color: Color.white.opacity(0.22 + energy * 0.16), radius: 24 + energy * 26)
-                    .animation(.spring(response: 0.42, dampingFraction: 0.74), value: energy)
+                        .offset(x: breath ? 15 : -15, y: drift ? -10 : 10)
+                        .blur(radius: 20)
+                    
+                    // Highlight Flow
+                    Circle()
+                        .fill(Color.white.opacity(0.35))
+                        .frame(width: size * 0.4, height: size * 0.3)
+                        .blur(radius: 25)
+                        .offset(x: -size * 0.15, y: -size * 0.15)
+                        .rotationEffect(.degrees(drift ? 45 : -45))
+                }
+                .clipShape(Circle())
+                .frame(width: size, height: size)
+                .overlay {
+                    particleTexture(size: size)
+                        .clipShape(Circle())
+                        .blendMode(.screen)
+                }
+                .overlay {
+                    // Edge Glow
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.5), .clear, .white.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                }
+                .scaleEffect(0.94 + energy * 0.18)
+                .offset(y: drift ? -12 : 12)
+                .shadow(color: Color(red: 0.2, green: 0.5, blue: 1.0).opacity(0.3 + energy * 0.4), radius: 30 + energy * 40)
+                .animation(.interpolatingSpring(stiffness: 120, damping: 15), value: energy)
 
                 if phase == .listening {
                     listeningRing(size: size)

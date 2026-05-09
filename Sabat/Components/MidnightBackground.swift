@@ -6,21 +6,37 @@ struct MidnightBackground: View {
             // Base Deep Blue Gradient
             LinearGradient(
                 colors: [
-                    Color(red: 0.02, green: 0.04, blue: 0.08), // Darker bluish top
-                    Color.sabatInk // Standard Sabat Ink bottom
+                    Color(red: 0.03, green: 0.06, blue: 0.12), // Deep Indigo top
+                    Color.sabatInk, // Black bottom
+                    Color(red: 0.02, green: 0.03, blue: 0.05) // Near black
                 ],
                 startPoint: .top,
-                endPoint: .center
+                endPoint: .bottom
             )
+            
+            // Diffuse Lighting Glows (Atmospheric)
+            Group {
+                Circle()
+                    .fill(Color.sabatGold2.opacity(0.04))
+                    .frame(width: 400, height: 400)
+                    .blur(radius: 100)
+                    .offset(x: -150, y: -200)
+                
+                Circle()
+                    .fill(Color.sabatDawn.opacity(0.03))
+                    .frame(width: 500, height: 500)
+                    .blur(radius: 120)
+                    .offset(x: 200, y: 100)
+            }
             
             // Suble Grain Noise Overlay
             GrainNoiseView()
-                .opacity(0.12) // More prominent as requested
+                .opacity(0.12)
                 .blendMode(.screen)
             
             // Subtle Handmade texture
             HandmadeTextureView()
-                .opacity(0.25)
+                .opacity(0.2)
         }
         .ignoresSafeArea()
     }

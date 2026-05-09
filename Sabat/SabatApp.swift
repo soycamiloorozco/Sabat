@@ -37,4 +37,12 @@ final class SabatAppDelegate: NSObject, UIApplicationDelegate {
 
         return true
     }
+
+    // Lock to portrait orientation only
+    func application(
+        _ application: UIApplication,
+        supportedInterfaceOrientationsFor window: UIWindow?
+    ) -> UIInterfaceOrientationMask {
+        return .portrait
+    }
 }
