@@ -30,7 +30,8 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal, SabatSpacing.lg)
-                .padding(.vertical, SabatSpacing.xl)
+                .padding(.top, SabatSpacing.xl)
+                .padding(.bottom, 120)
             }
             .refreshable {
                 viewModel.load()
@@ -93,12 +94,12 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(viewModel.preferredName)
-                .font(.sabatDisplay(40))
+                .font(.sabatDisplay(48))
                 .foregroundStyle(Color.sabatGold2)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Text("Begin the last conversation of the day.")
-                .font(.sabatSerif(20))
+                .font(.sabatSerif(24))
                 .foregroundStyle(Color.sabatMist)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .fixedSize(horizontal: false, vertical: true)
@@ -118,7 +119,7 @@ struct HomeView: View {
                 }
 
                 Text("Wake up gently during your lightest sleep phase.")
-                    .font(.sabatSerif(22))
+                    .font(.sabatSerif(26))
                     .foregroundStyle(Color.sabatMist)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -159,7 +160,7 @@ struct HomeView: View {
 
                 if subscription.isPremium {
                     Text("A 2 to 5 minute wind-down, then silence.")
-                        .font(.sabatSerif(26))
+                        .font(.sabatSerif(32))
                         .foregroundStyle(Color.sabatMist)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)
@@ -170,7 +171,7 @@ struct HomeView: View {
                     }
                 } else {
                     Text("Silence immediately. No companion.")
-                        .font(.sabatSerif(26))
+                        .font(.sabatSerif(32))
                         .foregroundStyle(Color.sabatMist)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)

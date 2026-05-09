@@ -95,6 +95,17 @@ export async function createRealtimeConnection(
       },
     };
     openaiWs.send(JSON.stringify(sessionUpdate));
+
+    // Force the agent to speak first
+    setTimeout(() => {
+      openaiWs.send(JSON.stringify({
+        type: "response.create",
+        response: {
+          modalities: ["audio", "text"],
+          instructions: "Introduce yourself warmly as Sabat and ask the user how their day was, with the goal of starting the wind-down ritual."
+        }
+      }));
+    }, 500);
   });
 
   openaiWs.on("message", async (data) => {

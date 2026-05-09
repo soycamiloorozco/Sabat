@@ -23,12 +23,12 @@ struct PaywallOverlay: View {
                         .padding(.bottom, 8)
                     
                     Text(title)
-                        .font(.sabatDisplay(34))
+                        .font(.sabatDisplay(40))
                         .foregroundStyle(Color.sabatGold2)
                         .multilineTextAlignment(.center)
                     
                     Text(subtitle)
-                        .font(.sabatSerif(20))
+                        .font(.sabatSerif(24))
                         .foregroundStyle(Color.sabatMist)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, SabatSpacing.xl)

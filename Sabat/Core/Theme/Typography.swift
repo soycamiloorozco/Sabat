@@ -2,11 +2,11 @@ import SwiftUI
 
 extension Font {
     static func sabatDisplay(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .regular, design: .serif)
+        .custom("InstrumentSerif-Regular", size: size)
     }
 
     static func sabatSerif(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .regular, design: .serif)
+        .custom("InstrumentSerif-Regular", size: size)
     }
 
     static func sabatSans(_ size: CGFloat, weight: Weight = .regular) -> Font {
