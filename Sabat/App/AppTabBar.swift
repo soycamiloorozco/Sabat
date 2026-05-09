@@ -2,54 +2,66 @@ import SwiftUI
 
 struct AppTabBar: View {
     @Binding var selectedTab: AppTab
-
+    @Namespace private var animation
+    
     var body: some View {
         HStack(spacing: 0) {
             ForEach(AppTab.allCases) { tab in
+                let isSelected = selectedTab == tab
+                
                 Button {
                     HapticEngine.tabTick()
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.82)) {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
                         selectedTab = tab
                     }
                 } label: {
-                    VStack(spacing: 5) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: 22, weight: .semibold))
-
+                    VStack(spacing: 4) {
+                        ZStack {
+                            if isSelected {
+                                Circle()
+                                    .fill(Color.sabatDawn.opacity(0.12))
+                                    .frame(width: 44, height: 44)
+                                    .matchedGeometryEffect(id: "active_pill", in: animation)
+                            }
+                            
+                            Image(systemName: tab.icon)
+                                .font(.system(size: 22, weight: isSelected ? .bold : .medium))
+                                .foregroundStyle(isSelected ? Color.sabatDawn : Color.sabatMuted)
+                        }
+                        
                         Text(tab.title)
-                            .font(.sabatSans(10, weight: .medium))
+                            .font(.sabatMono(10, weight: .semibold))
+                            .textCase(.uppercase)
+                            .foregroundStyle(isSelected ? Color.sabatDawn : Color.sabatMuted)
                     }
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(
-                        selectedTab == tab
-                        ? Color.sabatDawn
-                        : Color.sabatPaper.opacity(0.32)
-                    )
                 }
+                .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel(tab.accessibilityLabel)
-                .accessibilityHint("Double tap to switch to \(tab.title) tab")
             }
         }
-        .frame(height: 64)
-        .padding(.horizontal, SabatSpacing.lg)
-        .padding(.bottom, 8)
-        .background(
-            Color.sabatInk
-                .overlay(
-                    LinearGradient(
-                        colors: [
-                            Color.sabatInk.opacity(0),
-                            Color.sabatInk
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        )
-        .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Color.sabatLine)
-                .frame(height: 0.5)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background {
+            Capsule()
+                .fill(.ultraThinMaterial)
+                .environment(\.colorScheme, .dark)
+                .shadow(color: Color.black.opacity(0.4), radius: 25, y: 15)
+                .overlay {
+                    Capsule()
+                        .stroke(Color.sabatLine.opacity(0.3), lineWidth: 0.5)
+                }
+        }
+        .padding(.horizontal, 32)
+        .padding(.bottom, 12)
+    }
+}
+
+struct AppTabBar_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack(alignment: .bottom) {
+            MidnightBackground()
+            AppTabBar(selectedTab: .constant(.rest))
         }
     }
 }

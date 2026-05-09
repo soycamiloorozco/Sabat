@@ -17,6 +17,18 @@ struct SubscriptionView: View {
 
                     Spacer(minLength: SabatSpacing.xl)
 
+                    if viewModel.isPurchasing {
+                        ProgressView()
+                            .tint(Color.sabatGold2)
+                            .scaleEffect(1.2)
+                    } else {
+                        GoldButton(title: "Continue", systemImage: "sparkles") {
+                            viewModel.subscribe {
+                                dismiss()
+                            }
+                        }
+                    }
+
                     restoreButton
                 }
                 .padding(.horizontal, SabatSpacing.lg)
@@ -153,9 +165,24 @@ private struct PlanCard: View {
 final class SubscriptionViewModel: ObservableObject {
     @Published
     var selectedTier: SubscriptionTier = .monthly
+    @Published
+    var isPurchasing = false
 
     func selectTier(_ tier: SubscriptionTier) {
         selectedTier = tier
+    }
+    
+    func subscribe(completion: @escaping () -> Void) {
+        guard !isPurchasing else { return }
+        isPurchasing = true
+        
+        Task {
+            await SubscriptionManager.shared.purchase(selectedTier)
+            await MainActor.run {
+                isPurchasing = false
+                completion()
+            }
+        }
     }
 }
 

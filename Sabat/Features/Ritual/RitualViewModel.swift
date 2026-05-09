@@ -34,6 +34,7 @@ enum VoiceTone {
     case low
 }
 
+@MainActor
 final class RitualViewModel: ObservableObject {
     @Published
     var phase: RitualPhase = .idle

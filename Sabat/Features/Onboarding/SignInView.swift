@@ -64,7 +64,7 @@ struct SignInView: View {
                     authService.cache(user: user)
                     router.navigate(to: .nameCollection)
                 } label: {
-                    Text("Continue in development")
+                    Text("Continue as guest")
                         .font(.sabatSans(15, weight: .medium))
                         .foregroundStyle(Color.sabatMist)
                         .frame(maxWidth: .infinity)

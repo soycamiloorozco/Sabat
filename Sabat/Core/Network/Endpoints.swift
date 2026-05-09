@@ -6,6 +6,8 @@ enum APIEndpoint: Equatable {
     case userProfile
     case voiceTurn
     case sleepSessions
+    case heartRate
+    case rituals
 
     var path: String {
         switch self {
@@ -19,6 +21,10 @@ enum APIEndpoint: Equatable {
             "/voice/turn"
         case .sleepSessions:
             "/sleep/sessions"
+        case .heartRate:
+            "/health/heart-rate"
+        case .rituals:
+            "/rituals"
         }
     }
 
@@ -26,7 +32,7 @@ enum APIEndpoint: Equatable {
         switch self {
         case .userProfile:
             "GET"
-        case .authApple, .authRefresh, .voiceTurn, .sleepSessions:
+        case .authApple, .authRefresh, .voiceTurn, .sleepSessions, .heartRate, .rituals:
             "POST"
         }
     }

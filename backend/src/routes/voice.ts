@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { completeRitualTurn } from "../lib/anthropic.js";
-import { streamElevenLabsTTS } from "../lib/elevenlabs.js";
+import { completeRitualTurn, streamOpenAITTS } from "../lib/openai.js";
+import { createRealtimeConnection } from "../lib/realtime.js";
 import { buildRagContext, indexVoiceTurn } from "../lib/rag.js";
 
 const messageSchema = z.object({
@@ -16,6 +16,7 @@ const voiceTurnSchema = z.object({
 });
 
 export default async function voiceRoutes(fastify: FastifyInstance) {
+  // Existing REST endpoint for single turns
   fastify.post("/turn", { preHandler: fastify.authenticate }, async (request, reply) => {
     if (!request.userId) {
       return reply.code(401).send({ error: "Unauthorized" });
@@ -38,7 +39,7 @@ export default async function voiceRoutes(fastify: FastifyInstance) {
         .header("x-sabat-session-complete", String(completion.sessionComplete))
         .header("x-sabat-reply-text", encodeURIComponent(completion.text));
 
-      for await (const chunk of streamElevenLabsTTS(completion.text)) {
+      for await (const chunk of streamOpenAITTS(completion.text)) {
         reply.raw.write(chunk);
       }
 
@@ -53,4 +54,27 @@ export default async function voiceRoutes(fastify: FastifyInstance) {
       });
     }
   });
+
+  // New WebSocket endpoint for Realtime Voice Agent
+  fastify.get("/realtime", { websocket: true, preHandler: fastify.authenticate }, async (connection, request) => {
+    if (!request.userId) {
+      connection.socket.close(1008, "Unauthorized");
+      return;
+    }
+
+    // Get user profile for personalization
+    const user = await fastify.db.user.findUnique({
+      where: { id: request.userId },
+      include: { profile: true }
+    });
+
+    await createRealtimeConnection(connection.socket, {
+      userId: request.userId,
+      db: fastify.db,
+      userName: user?.profile?.displayName || "Friend",
+      language: "es" // Default to Spanish as requested
+    });
+  });
 }
+
+

@@ -3,20 +3,31 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
+
 model User {
-  id             String              @id @default(cuid())
-  appleSubject   String              @unique
-  email          String?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  profile        UserProfile?
-  sessions       SleepSession[]
-  conversations  VoiceConversation[]
-  memories       UserMemory[]
+  id               String              @id @default(cuid())
+  appleSubject     String              @unique
+  email            String?
+  subscriptionTier SubscriptionTier    @default(FREE)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  profile          UserProfile?
+  sessions         SleepSession[]
+  heartRates       HeartRateData[]
+  restRituals      RestRitual[]
+  conversations    VoiceConversation[]
+  memories         UserMemory[]
+}
+
+enum SubscriptionTier {
+  FREE
+  MONTHLY
+  YEARLY
 }
 
 model UserProfile {
@@ -41,6 +52,28 @@ model SleepSession {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model HeartRateData {
+  id        String   @id @default(cuid())
+  userId    String
+  bpm       Float
+  timestamp DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+}
+
+model RestRitual {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String    // e.g., "daytime_pause", "breathing"
+  startedAt DateTime
+  endedAt   DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model VoiceConversation {
   id              String   @id @default(cuid())
   userId          String
@@ -57,7 +90,7 @@ model UserMemory {
   content    String
   source     String
   metadata   Json?
-  embedding  Json
+  embedding  Json       // Using Json for now, but will leverage pgvector via SQL in RAG logic
   salience   Float      @default(0.5)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -73,5 +106,7 @@ enum MemoryKind {
   habit
   preference
   concern
+  stress_event
   system_summary
 }
+

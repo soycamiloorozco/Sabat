@@ -22,9 +22,15 @@ struct ProfileView: View {
 
                     voiceSection
 
+                    alarmSoundsSection
+
                     remindersSection
 
                     sleepSection
+
+                    detectionSection
+
+                    scheduleSection
 
                     planSection
 
@@ -74,7 +80,7 @@ struct ProfileView: View {
                             .textCase(.uppercase)
                             .foregroundStyle(localization.currentLanguage == language ? Color.sabatInk : Color.sabatMist)
                             .frame(maxWidth: .infinity)
-                            .frame(height: 40)
+                            .frame(height: 44)
                             .background(localization.currentLanguage == language ? Color.white : Color.sabatPaper.opacity(0.055))
                             .clipShape(Capsule())
                     }
@@ -217,6 +223,32 @@ struct ProfileView: View {
         }
     }
 
+    private var alarmSoundsSection: some View {
+        ProfileSection(title: "Alarm Sound", subtitle: "The first vibration of the day") {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: SabatSpacing.sm) {
+                    ForEach(AlarmSound.allCases) { sound in
+                        Button {
+                            withAnimation(.spring(response: 0.24, dampingFraction: 0.8)) {
+                                viewModel.alarmSound = sound
+                            }
+                        } label: {
+                            Text(sound.title)
+                                .font(.sabatMono(12, weight: .semibold))
+                                .textCase(.uppercase)
+                                .foregroundStyle(viewModel.alarmSound == sound ? Color.sabatInk : Color.sabatMist)
+                                .padding(.horizontal, 16)
+                                .frame(height: 40)
+                                .background(viewModel.alarmSound == sound ? Color.white : Color.sabatPaper.opacity(0.055))
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(PillSecondaryButtonStyle())
+                    }
+                }
+            }
+        }
+    }
+
     private var remindersSection: some View {
         ProfileSection(title: L10n.reminders, subtitle: L10n.smallPauses) {
             Toggle(isOn: Binding(
@@ -253,6 +285,66 @@ struct ProfileView: View {
                 .font(.sabatSans(15))
                 .foregroundStyle(Color.sabatMist)
                 .tint(Color.white)
+        }
+    }
+
+    private var detectionSection: some View {
+        ProfileSection(title: "Sleep Detection", subtitle: "How Sabat listens to your night") {
+            VStack(alignment: .leading, spacing: SabatSpacing.md) {
+                HStack(spacing: SabatSpacing.sm) {
+                    ForEach(SleepDetectionMethod.allCases) { method in
+                        Button {
+                            withAnimation(.spring(response: 0.24, dampingFraction: 0.8)) {
+                                viewModel.detectionMethod = method
+                            }
+                        } label: {
+                            Text(method.title)
+                                .font(.sabatMono(12, weight: .semibold))
+                                .textCase(.uppercase)
+                                .foregroundStyle(viewModel.detectionMethod == method ? Color.sabatInk : Color.sabatMist)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 40)
+                                .background(viewModel.detectionMethod == method ? Color.white : Color.sabatPaper.opacity(0.055))
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(PillSecondaryButtonStyle())
+                    }
+                }
+
+                Text(viewModel.detectionMethod == .microphone ? "Microphone captures breathing patterns and ambient noise to refine sleep phase analysis." : "Accelerometer uses device motion to detect sleep stages.")
+                    .font(.sabatSans(13))
+                    .foregroundStyle(Color.sabatMuted)
+                    .lineSpacing(4)
+            }
+        }
+    }
+
+    private var scheduleSection: some View {
+        ProfileSection(title: "Alarm Schedule", subtitle: "Active days for the smart alarm") {
+            HStack(spacing: SabatSpacing.xs) {
+                let days = ["M", "T", "W", "T", "F", "S", "S"]
+                ForEach(0..<7, id: \.self) { index in
+                    let dayNum = index + 1
+                    let isSelected = viewModel.alarmDays.contains(dayNum)
+                    
+                    Button {
+                        if isSelected {
+                            viewModel.alarmDays.remove(dayNum)
+                        } else {
+                            viewModel.alarmDays.insert(dayNum)
+                        }
+                    } label: {
+                        Text(days[index])
+                            .font(.sabatMono(14, weight: .bold))
+                            .foregroundStyle(isSelected ? Color.sabatInk : Color.sabatMist)
+                            .frame(width: 40, height: 40)
+                            .background(isSelected ? Color.sabatDawn : Color.sabatPaper.opacity(0.08))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(PillSecondaryButtonStyle())
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 

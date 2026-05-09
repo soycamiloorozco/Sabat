@@ -11,12 +11,41 @@ enum VoicePresence: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .calm:
-            "Calm"
-        case .deep:
-            "Deep"
-        case .near:
-            "Near"
+        case .calm: "Calm"
+        case .deep: "Deep"
+        case .near: "Near"
+        }
+    }
+}
+
+enum AlarmSound: String, CaseIterable, Identifiable {
+    case gong
+    case forest
+    case midnight
+    case dawn
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .gong: "Sacred Gong"
+        case .forest: "Old Forest"
+        case .midnight: "Midnight Mist"
+        case .dawn: "Solar Dawn"
+        }
+    }
+}
+
+enum SleepDetectionMethod: String, CaseIterable, Identifiable {
+    case accelerometer
+    case microphone
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .accelerometer: "Accelerometer"
+        case .microphone: "Microphone & Ambient"
         }
     }
 }
@@ -26,6 +55,9 @@ final class ProfileViewModel: ObservableObject {
     @Published var notificationsEnabled: Bool
     @Published var daytimePauseRemindersEnabled: Bool
     @Published var voicePresence: VoicePresence
+    @Published var alarmSound: AlarmSound
+    @Published var detectionMethod: SleepDetectionMethod
+    @Published var alarmDays: Set<Int>
     @Published var reminderDate: Date
     @Published var alarmWindowMinutes: Int
     @Published var statusMessage: String?
@@ -40,6 +72,15 @@ final class ProfileViewModel: ObservableObject {
         voicePresence = VoicePresence(
             rawValue: UserDefaults.standard.string(forKey: UserDefaultsKeys.voicePresence) ?? VoicePresence.calm.rawValue
         ) ?? .calm
+        alarmSound = AlarmSound(
+            rawValue: UserDefaults.standard.string(forKey: "app.sabat.alarm.sound") ?? AlarmSound.gong.rawValue
+        ) ?? .gong
+        detectionMethod = SleepDetectionMethod(
+            rawValue: UserDefaults.standard.string(forKey: "app.sabat.detection.method") ?? SleepDetectionMethod.accelerometer.rawValue
+        ) ?? .accelerometer
+        
+        let savedDays = UserDefaults.standard.array(forKey: "app.sabat.alarm.days") as? [Int] ?? [1, 2, 3, 4, 5, 6, 7]
+        alarmDays = Set(savedDays)
 
         if let storedDate = UserDefaults.standard.object(forKey: UserDefaultsKeys.nightlyReminderTime) as? Date {
             reminderDate = storedDate
@@ -57,6 +98,9 @@ final class ProfileViewModel: ObservableObject {
         let trimmedName = preferredName.trimmingCharacters(in: .whitespacesAndNewlines)
         UserDefaults.standard.set(trimmedName.isEmpty ? "Friend" : trimmedName, forKey: UserDefaultsKeys.preferredName)
         UserDefaults.standard.set(voicePresence.rawValue, forKey: UserDefaultsKeys.voicePresence)
+        UserDefaults.standard.set(alarmSound.rawValue, forKey: "app.sabat.alarm.sound")
+        UserDefaults.standard.set(detectionMethod.rawValue, forKey: "app.sabat.detection.method")
+        UserDefaults.standard.set(Array(alarmDays), forKey: "app.sabat.alarm.days")
         UserDefaults.standard.set(reminderDate, forKey: UserDefaultsKeys.nightlyReminderTime)
         UserDefaults.standard.set(alarmWindowMinutes, forKey: UserDefaultsKeys.smartAlarmWindowMinutes)
         UserDefaults.standard.set(
@@ -70,6 +114,15 @@ final class ProfileViewModel: ObservableObject {
             )
         }
         statusMessage = L10n.profileUpdated
+        
+        Task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            await MainActor.run {
+                if self.statusMessage == L10n.profileUpdated {
+                    self.statusMessage = nil
+                }
+            }
+        }
     }
 
     func setNotifications(_ isEnabled: Bool) {

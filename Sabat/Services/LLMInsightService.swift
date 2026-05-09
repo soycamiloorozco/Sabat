@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// Generates personalized sleep insights based on user's sleep data.
 /// In production, this calls the backend Anthropic API. For now, it uses
@@ -16,8 +17,14 @@ struct LLMInsightService {
     private func generateRuleBasedInsights(sessions: [SleepSession]) async -> [SleepInsight] {
         let totalNights = sessions.count
         let avgDuration = sessions.compactMap { $0.duration }.reduce(0, +) / Double(totalNights)
-        let avgScore = sessions.compactMap { $0.restScore }.reduce(0, +) / totalNights
-        let deepMinutes = sessions.flatMap { $0.phaseSamples }.filter { $0.phase == .deep }.reduce(0) { $0 + Int($1.endDate.timeIntervalSince($1.startDate) / 60) }
+        _ = sessions.compactMap { $0.restScore }.reduce(0, +) / totalNights
+        
+        // Break up complex expression for type-checker
+        let allPhaseSamples = sessions.flatMap { $0.phaseSamples }
+        let deepSamples = allPhaseSamples.filter { $0.phase == .deep }
+        let deepMinutes = deepSamples.reduce(0) { total, sample in
+            total + Int(sample.endDate.timeIntervalSince(sample.startDate) / 60)
+        }
         let deepAvg = totalNights > 0 ? deepMinutes / totalNights : 0
 
         var insights: [SleepInsight] = []

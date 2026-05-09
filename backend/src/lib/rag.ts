@@ -2,7 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { ConversationMessage, RagContext, RagMemory } from "../types/index.js";
 import { cosineSimilarity, embedText } from "./embeddings.js";
 
-type MemoryKind =
+export type MemoryKind =
   | "voice_disclosure"
   | "sleep_summary"
   | "habit"
@@ -10,7 +10,7 @@ type MemoryKind =
   | "concern"
   | "system_summary";
 
-type IndexMemoryInput = {
+export type IndexMemoryInput = {
   userId: string;
   kind: MemoryKind;
   content: string;
@@ -120,7 +120,8 @@ export async function indexSleepSessionMemory(
   });
 }
 
-async function indexMemory(db: PrismaClient, input: IndexMemoryInput): Promise<void> {
+export async function indexMemory(db: PrismaClient, input: IndexMemoryInput): Promise<void> {
+
   const content = input.content.trim();
   if (content.length < 3) {
     return;
@@ -206,7 +207,7 @@ function summarizeSleep(
   ].join(". ");
 }
 
-function classifyMemory(content: string): MemoryKind {
+export function classifyMemory(content: string): MemoryKind {
   const normalized = content.toLowerCase();
   if (/(afraid|fear|scared|worried|anxious|panic|temor|miedo|ansiedad)/.test(normalized)) {
     return "concern";
@@ -223,7 +224,7 @@ function classifyMemory(content: string): MemoryKind {
   return "voice_disclosure";
 }
 
-function inferSalience(content: string): number {
+export function inferSalience(content: string): number {
   const normalized = content.toLowerCase();
   let score = 0.5;
   if (/(afraid|fear|scared|worried|anxious|panic|temor|miedo|ansiedad)/.test(normalized)) {

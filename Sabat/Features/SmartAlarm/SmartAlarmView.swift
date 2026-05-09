@@ -31,12 +31,15 @@ struct SmartAlarmView: View {
         }
         .navigationBarBackButtonHidden()
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     dismiss()
                 } label: {
-                    Image(systemName: "chevron.left")
+                    Image(systemName: "xmark")
                         .foregroundStyle(Color.sabatMist)
+                        .padding(8)
+                        .background(Color.sabatPaper.opacity(0.12))
+                        .clipShape(Circle())
                 }
             }
         }

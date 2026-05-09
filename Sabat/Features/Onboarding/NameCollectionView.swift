@@ -13,7 +13,7 @@ struct NameCollectionView: View {
             MidnightBackground()
 
             VStack(spacing: SabatSpacing.xl) {
-                OnboardingProgressView(current: 3, total: 5)
+                OnboardingProgressView(current: 4, total: 5)
                     .padding(.top, SabatSpacing.lg)
 
                 Spacer(minLength: SabatSpacing.md)

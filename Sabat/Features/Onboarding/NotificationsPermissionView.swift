@@ -12,7 +12,7 @@ struct NotificationsPermissionView: View {
             MidnightBackground()
 
             VStack(spacing: SabatSpacing.xl) {
-                OnboardingProgressView(current: 4, total: 5)
+                OnboardingProgressView(current: 5, total: 5)
                     .padding(.top, SabatSpacing.lg)
 
                 Spacer(minLength: SabatSpacing.lg)

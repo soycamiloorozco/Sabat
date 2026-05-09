@@ -104,6 +104,25 @@ final class APIClient: @unchecked Sendable {
         let _: EmptyAPIResponse = try await request(.sleepSessions, body: session)
     }
 
+    func saveHeartRateSamples(userId: String, samples: [HeartRateSample]) async throws {
+        struct Request: Encodable {
+            let userId: String
+            let samples: [HeartRateSample]
+        }
+        let _: EmptyAPIResponse = try await request(.heartRate, body: Request(userId: userId, samples: samples))
+    }
+
+    func saveRestRitual(userId: String, type: String, startedAt: Date, endedAt: Date?, notes: String?) async throws {
+        struct Request: Encodable {
+            let userId: String
+            let type: String
+            let startedAt: Date
+            let endedAt: Date?
+            let notes: String?
+        }
+        let _: EmptyAPIResponse = try await request(.rituals, body: Request(userId: userId, type: type, startedAt: startedAt, endedAt: endedAt, notes: notes))
+    }
+
     private func perform<Response: Decodable>(
         endpoint: APIEndpoint,
         bodyData: Data?

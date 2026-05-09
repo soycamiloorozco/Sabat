@@ -22,14 +22,39 @@ actor HealthKitService {
         HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
     }
 
+    private var heartRateType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .heartRate)!
+    }
+
     func requestAuthorizationIfAvailable() async throws {
         guard HKHealthStore.isHealthDataAvailable() else {
             throw HealthKitServiceError.unavailable
         }
 
         let shareTypes: Set<HKSampleType> = [sleepType]
-        let readTypes: Set<HKObjectType> = [sleepType]
+        let readTypes: Set<HKObjectType> = [sleepType, heartRateType]
         try await store.requestAuthorization(toShare: shareTypes, read: readTypes)
+    }
+
+    func fetchHeartRateSamples(since date: Date) async throws -> [HKQuantitySample] {
+        let predicate = HKQuery.predicateForSamples(withStart: date, end: Date(), options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: heartRateType,
+                predicate: predicate,
+                limit: 100,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: (samples as? [HKQuantitySample]) ?? [])
+                }
+            }
+            store.execute(query)
+        }
     }
 
     func save(session: SleepSession) async throws {
